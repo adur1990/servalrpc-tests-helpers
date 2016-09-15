@@ -1,0 +1,7 @@
+#!/bin/sh
+if [ "$1" = "-h" ]; then
+    echo "Lists number and names of files in Rhizome store."
+    exit 0
+fi
+
+echo Total files in Rhizome Store: $(/serval-tests/rhizome-list-bundles-curl | /serval-tests/jsawk | grep '\["rows",[0-9]*\]' | grep -v MeshMS2 | wc -l)

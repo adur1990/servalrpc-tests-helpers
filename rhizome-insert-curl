@@ -1,0 +1,18 @@
+#! /bin/bash
+
+manifest_file="/tmp/`hostname`.man"
+
+if [ -e "$manifest_file" ]; then
+	rm $manifest_file
+fi
+
+touch $manifest_file
+
+FILE_NAME=$1
+
+curl -H "Expect:" \
+     --silent --show-error \
+     --basic --user RPC:SRPC \
+     --form "manifest=@$manifest_file;type=rhizome/manifest;format=\"text+binarysig\"" \
+     --form "payload=@$FILE_NAME;filename=\"$FILE_NAME\"}" \
+     "http://127.0.0.1:4110/restful/rhizome/insert"

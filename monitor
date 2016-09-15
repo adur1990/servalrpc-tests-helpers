@@ -1,0 +1,96 @@
+#!/bin/sh
+if [ -z $SCRIPT_PATH ]; then SCRIPT_PATH=$(dirname $0); fi
+. $SCRIPT_PATH/serval-vars
+
+usage() {
+    echo "usage:"
+    echo "  $0 system    start logging of system parts"
+    echo "  $0 serval    start logging of serval and rhizome"
+    echo "  $0 stop      stop logging; parse serval logs"
+    echo "  $0 help      show this help message"
+}
+
+if [ -z $1 ]; then
+    usage
+    exit 1
+fi
+
+HOSTNAME=$(hostname)
+
+LATEST_MONITOR_PATH=`ls -td -- $MONITOR_PATH/*/ | grep 20 | head -n 1` 2> /dev/null
+
+if [ "$1" = "system" ]; then
+    DIR_TIME=$(date +%Y-%m-%d_%H-%M)
+    mkdir -p $MONITOR_PATH/$DIR_TIME
+    LATEST_MONITOR_PATH=`ls -td -- $MONITOR_PATH/*/ | grep 20 | head -n 1`
+
+    mkdir -p $LATEST_MONITOR_PATH/active
+
+    # sleep a second to allow processes to start
+    # sleep 1
+
+    echo -n " $PIDS" >> $MONITOR_PATH/$HOSTNAME.pids
+    exit 0
+fi
+
+if [ "$1" = "serval" ]; then
+    . $SCRIPT_PATH/serval-base
+
+    LATEST_MONITOR_PATH=`ls -td -- $MONITOR_PATH/*/ | grep 20 | head -n 1`
+
+    mkdir -p $LATEST_MONITOR_PATH/err-log/
+
+    mkdir -p $LATEST_MONITOR_PATH/servald-general
+    mkdir -p $LATEST_MONITOR_PATH/rhizome-general
+    mkdir -p $LATEST_MONITOR_PATH/pidstat
+    mkdir -p $LATEST_MONITOR_PATH/diskusage
+
+    servald id self | tail -n 1 > $LATEST_MONITOR_PATH/$HOSTNAME.sid 2>&1
+
+    nohup $SCRIPT_PATH/servald-monitor > $LATEST_MONITOR_PATH/err-log/servald-monitor-$HOSTNAME.err 2>&1 &
+    PIDS="$PIDS $!"
+
+    nohup $SCRIPT_PATH/rhizome-monitor > $LATEST_MONITOR_PATH/err-log/rhizome-monitor-$HOSTNAME.err 2>&1 &
+    PIDS="$PIDS $!"
+
+    nohup $SCRIPT_PATH/pidstat-monitor > $LATEST_MONITOR_PATH/err-log/pidstat-monitor-$HOSTNAME.err 2>&1 &
+    PIDS="$PIDS $!"
+
+    nohup $SCRIPT_PATH/diskusage-monitor > $LATEST_MONITOR_PATH/err-log/diskusage-monitor-$HOSTNAME.err 2>&1 &
+    PIDS="$PIDS $!"
+
+    # sleep a second to allow processes to start
+    # sleep 1
+
+    echo -n " $PIDS" >> $MONITOR_PATH/$HOSTNAME.pids
+    exit 0
+fi
+
+if [ "$1" = "stop" ]; then
+    . $SCRIPT_PATH/serval-base
+    # echo node $HOSTNAME, killing `cat $MONITOR_PATH/$HOSTNAME.pids`
+    # ps aux
+    kill `cat $MONITOR_PATH/$HOSTNAME.pids`
+    rm $MONITOR_PATH/$HOSTNAME.pids
+
+    LATEST_MONITOR_PATH=`ls -td -- $MONITOR_PATH/*/ | grep 20 | head -n 1`
+
+    # using latest monitoring path
+    mkdir -p $LATEST_MONITOR_PATH/serval-logs/
+    cp -R `servald config paths | grep SERVAL_LOG_PATH | cut -d ":" -f2` $LATEST_MONITOR_PATH/serval-logs/$HOSTNAME
+
+    mkdir -p $LATEST_MONITOR_PATH/rhizome-insertion
+
+    $SCRIPT_PATH/rhizome-insertion-monitor > $LATEST_MONITOR_PATH/err-log/rhizome-insertion-monitor-$HOSTNAME.err 2>&1
+
+    exit 0
+fi
+
+if [ "$1" = "help" ]; then
+    usage
+    exit 0
+fi
+
+echo "unknown command: $1"
+usage
+exit 1

@@ -1,0 +1,24 @@
+#!/bin/sh
+if [ -z $SCRIPT_PATH ]; then SCRIPT_PATH=$(dirname $0); fi
+. $SCRIPT_PATH/serval-base
+
+if [ "$1" = "-h" ]; then
+    echo "writes a csv dump for selected rhizome properties to $MONITOR_PATH"
+    exit 0
+fi
+
+# using latest monitoring path
+MONITOR_PATH=`ls -td -- $MONITOR_PATH/*/ | grep 20 | head -n 1`
+OUTFILE=$(echo "$MONITOR_PATH/rhizome-general/rhizome-$(hostname).csv" | sed s#//*#/#g)
+
+echo "timestamp_ms,file_count,blobdir_size_k,db_size_k" > $OUTFILE
+
+while [ true ]; do
+    sleep $SLEEP_TIME
+    NOW=$(date_ms)
+    COUNT=$(/serval-tests/rhizome-list-bundles-curl | /serval-tests/jsawk | grep '\["rows",[0-9]*\]' | grep -v MeshMS2 | wc -l)
+    BLOBSIZE=$(du -k $RHIZOME_STORE_PATH/blob | cut -f1)
+    DBSIZE=$(du -k $RHIZOME_STORE_PATH/rhizome.db | cut -f1)
+
+    echo "$NOW,$COUNT,$BLOBSIZE,$DBSIZE" >> $OUTFILE
+done

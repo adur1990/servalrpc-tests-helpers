@@ -1,0 +1,31 @@
+#!/bin/sh
+if [ -z $SCRIPT_PATH ]; then SCRIPT_PATH=$(dirname $0); fi
+. $SCRIPT_PATH/serval-vars
+. $SCRIPT_PATH/serval-base
+
+if [ "$1" = "-h" ]; then
+    echo "usage: $0 [testfiles_path]"
+    echo "inserts all files at [testfiles_path] or $TESTFILE_PATH"
+    exit 0
+fi
+
+# using latest monitoring path
+MONITOR_PATH=`ls -td -- $MONITOR_PATH/*/ | grep 20 | head -n 1`
+OUTFILE="$MONITOR_PATH/active/rhizome-add-testfiles-active-$(hostname).csv"
+
+if ! [ -e $OUTFILE ]; then
+        echo "timestamp,sender,file" > $OUTFILE
+fi
+
+if ! [ -z $1 ]; then TESTFILES="$1/"; fi
+
+if [ -x /usr/bin/date ]; then
+    DATE_BIN="/usr/bin/date"
+else
+    DATE_BIN="/bin/date"
+fi
+
+for i in $(ls -v $TESTFILES); do
+    echo "`eval "$DATE_BIN" +%s%3N`,$SID,$i" >> $OUTFILE
+    /serval-tests/rhizome-insert-curl $TESTFILES/$i
+done

@@ -1,0 +1,6 @@
+#! /bin/bash
+
+curl -H "Expect:" \
+	 --silent --fail --show-error \
+     --basic --user RPC:SRPC \
+     "http://127.0.0.1:4110/restful/rhizome/bundlelist.json"
