@@ -1,7 +1,7 @@
 #!/bin/sh
 # basic variables
 
-MONITOR_PATH="/tmp/serval-monitor"
+MONITOR_PATH="/tmp/serval-monitor_tmp"
 
 TESTFILE_PATH="/tmp/serval-testfiles"
 TESTFILES="$TESTFILE_PATH/*"

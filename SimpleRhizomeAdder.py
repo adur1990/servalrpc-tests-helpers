@@ -12,14 +12,14 @@ parser.add_argument('-t', dest='timeout', default=-1, type=int, help='stop after
 parser.add_argument('-l', dest='log', action='store_true', help='file, where proactive logging happens')
 args = parser.parse_args()
 
-# adding parsed /default values to global dict 
+# adding parsed /default values to global dict
 globals().update(vars(args))
 random.seed(socket.gethostname())
 mySid = getSid()
 
 later = time.time() + timeout
 
-all_subdirs = ['/tmp/serval-monitor/' + d for d in os.listdir('/tmp/serval-monitor/') if os.path.isdir('/tmp/serval-monitor/' + d) and d.startswith('20')]
+all_subdirs = ['/tmp/serval-monitor_tmp/' + d for d in os.listdir('/tmp/serval-monitor_tmp/') if os.path.isdir('/tmp/serval-monitor_tmp/' + d) and d.startswith('20')]
 monitor_path = max(all_subdirs, key=os.path.getctime)
 outfile = monitor_path + '/active/rhizome-active-' + socket.gethostname() + '.csv'
 

@@ -41,7 +41,6 @@ usage:
 * **rhizome-add-testfiles** - inserts all files at $1 or $TESTFILE\_PATH
 * **SimpleMeshUser.py** - send MeshMS messages periodically
 * **SimpleRhizomeAdder.py** - insert periodically files to rhizome store
-* **DirectRhizomeAdder.py** - send files periodically
 
 
 
