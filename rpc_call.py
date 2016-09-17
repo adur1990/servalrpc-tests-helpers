@@ -12,6 +12,9 @@ globals().update(vars(args))
 
 SERVALD_BIN = "servald"
 
+def mkpayload():
+    return os.urandom(31).encode('hex')+"::"
+
 def getSid():
     sid = subprocess.check_output(SERVALD_BIN + " id self", shell=True)
     return sid.split('\n')[2]
@@ -35,7 +38,7 @@ if __name__ == '__main__':
                 # simple call to sid transparent
                 while count > 0:
                     receiver = random.choice(other_sids)
-                    subprocess.call(["rpc", "-c", "--", receiver, "simple", my_sid, "0,0,0,0,0,0,0,0"], stdout=devnull, stderr=devnull)
+                    subprocess.call(["rpc", "-c", "--", receiver, "simple", mkpayload()+my_sid, "0,0,0,0,0,0,0,0"], stdout=devnull, stderr=devnull)
                     count = count - 1
                     sleeptime = random.randint(10, 20)
                     time.sleep(sleeptime)
@@ -43,7 +46,7 @@ if __name__ == '__main__':
                 # simple call to sid special mode
                 while count > 0:
                     receiver = random.choice(other_sids)
-                    subprocess.call(["rpc", "-c", '-'+mode, "--", receiver, "simple", my_sid, "0,0,0,0,0,0,0,0"], stdout=devnull, stderr=devnull)
+                    subprocess.call(["rpc", "-c", '-'+mode, "--", receiver, "simple", mkpayload()+my_sid, "0,0,0,0,0,0,0,0"], stdout=devnull, stderr=devnull)
                     count = count - 1
                     sleeptime = random.randint(10, 20)
                     time.sleep(sleeptime)
@@ -52,14 +55,14 @@ if __name__ == '__main__':
             if mode == 't':
                 # simple call to any/all transparent
                 while count > 0:
-                    subprocess.call(["rpc", "-c", "--", dest, "simple", my_sid, "0,0,0,0,0,0,0,0"], stdout=devnull, stderr=devnull)
+                    subprocess.call(["rpc", "-c", "--", dest, "simple", mkpayload()+my_sid, "0,0,0,0,0,0,0,0"], stdout=devnull, stderr=devnull)
                     count = count - 1
                     sleeptime = random.randint(10, 20)
                     time.sleep(sleeptime)
             else:
                 # simple call to any/all special mode
                 while count > 0:
-                    subprocess.call(["rpc", "-c", '-'+mode, "--", dest, "simple", my_sid, "0,0,0,0,0,0,0,0"], stdout=devnull, stderr=devnull)
+                    subprocess.call(["rpc", "-c", '-'+mode, "--", dest, "simple", mkpayload()+my_sid, "0,0,0,0,0,0,0,0"], stdout=devnull, stderr=devnull)
                     count = count - 1
                     sleeptime = random.randint(10, 20)
                     time.sleep(sleeptime)
