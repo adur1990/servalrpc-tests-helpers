@@ -54,7 +54,6 @@ if [ "$1" = "serval" ]; then
     PIDS="$PIDS $!"
 
     nohup $SCRIPT_PATH/pidstat-monitor > $LATEST_MONITOR_PATH/err-log/pidstat-monitor-$HOSTNAME.err 2>&1 &
-    PIDS="$PIDS $!"
 
     nohup $SCRIPT_PATH/diskusage-monitor > $LATEST_MONITOR_PATH/err-log/diskusage-monitor-$HOSTNAME.err 2>&1 &
     PIDS="$PIDS $!"
@@ -71,6 +70,7 @@ if [ "$1" = "stop" ]; then
     # echo node $HOSTNAME, killing `cat $MONITOR_PATH/$HOSTNAME.pids`
     # ps aux
     kill `cat $MONITOR_PATH/$HOSTNAME.pids`
+    pkill pidstat
     rm $MONITOR_PATH/$HOSTNAME.pids
 
     LATEST_MONITOR_PATH=`ls -td -- $MONITOR_PATH/*/ | grep 20 | head -n 1`
