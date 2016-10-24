@@ -15,10 +15,10 @@ OUTFILE_RPC=$(echo "$MONITOR_PATH/pidstat/rpc-pidstat-$(hostname).csv" | sed s#/
 pidstat -druh -p ALL | sed '1d;/^$/d;s/#[ ]*Time/timestamp/g;s/^[ ]*//;s/[ ]\+/,/g' | head -n 1 > $OUTFILE_SERVAL
 pidstat -druh -p ALL | sed '1d;/^$/d;s/#[ ]*Time/timestamp/g;s/^[ ]*//;s/[ ]\+/,/g' | head -n 1 > $OUTFILE_RPC
 
-while [ true ]; do
-    sleep $SLEEP_TIME
+#while [ true ]; do
+#    sleep $SLEEP_TIME
 
-    pidstat -druh -p $SERVAL_PID | sed '1d;/^[#]/d;/^$/d;s/^[ ]*//;s/[ ]\+/,/g' >> $OUTFILE_SERVAL
-    pidstat -druh -C "rpc" | sed '1d;/^[#]/d;/^$/d;s/^[ ]*//;s/[ ]\+/,/g' >> $OUTFILE_RPC
+    nohup pidstat -druh -p $SERVAL_PID 1 | sed '1d;/^[#]/d;/^$/d;s/^[ ]*//;s/[ ]\+/,/g' >> $OUTFILE_SERVAL &
+    nohup pidstat -druh -C "rpc" 1 | sed '1d;/^[#]/d;/^$/d;s/^[ ]*//;s/[ ]\+/,/g' >> $OUTFILE_RPC &
 
-done
+#done
